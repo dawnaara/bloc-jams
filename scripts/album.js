@@ -30,6 +30,7 @@ var updatePlayerBarSong = function(){
     $('.currently-playing .artist-name').text(currentAlbum.artist);
     $('.currently-playing .artist-song-mobile').text(currentSongFromAlbum.title + " - " + currentAlbum.artist);
     $('.main-controls .play-pause').html(playerBarPauseButton);
+    setTotalTimeInPlayerBar(filterTimeCode(currentSongFromAlbum.duration));
 }
 
 var getSongNumberCell = function(number) {
@@ -41,7 +42,8 @@ var createSongRow = function(songNumber, songName, songLength) {
         '<tr class="album-view-song-item">'
       + '  <td class="song-item-number" data-song-number="' + songNumber + '">' + songNumber + '</td>'
       + '  <td class="song-item-title">' + songName + '</td>'
-      + '  <td class="song-item-duration">' + songLength + '</td>'
+      + '  <td class="song-item-duration">' + filterTimeCode(songLength) 
+      + '</td>'
       + '</tr>'
       ;
  
@@ -133,13 +135,13 @@ var createSongRow = function(songNumber, songName, songLength) {
      if (currentSoundFile) {
          // #10
          currentSoundFile.bind('timeupdate', function(event) {
-             // #11
              var seekBarFillRatio = this.getTime() / this.getDuration();
              var $seekBar = $('.seek-control .seek-bar');
  
              updateSeekPercentage($seekBar, seekBarFillRatio);
          });
      }
+     setCurrentTimeInPlayerBar(filterTimeCode(this.getTime()));
  };
 
   var updateSeekPercentage = function($seekBar, seekBarFillRatio) {
@@ -284,6 +286,25 @@ var previousSong = function() {
     
 };
 
+var setCurrentTimeInPlayerBar = function(currentTime) {
+    $('.current-time').text(currentTime);
+};
+
+var setTotalTimeInPlayerBar(totalTime) {
+    $('.total-time').text(totalTime);
+};
+
+var filterTimeCode(timeInSeconds) {
+    var timeInSeconds = parseFloat(timeInSeconds);
+    var wholeMinutes = Math.floor(timeInSeconds/60);
+    var wholeSeconds = ("0" + Math.floor(timeInSeconds%60)).slice(-2);
+    return wholeMinutes + ":" + wholeSeconds;
+};
+
+//Wrap the arguments passed to setCurrentTimeInPlayerBar() and setTotalTimeInPlayerBar() in a filterTimeCode() call so the time output below the seek bar is formatted.
+
+//Wrap the songLength variable in createSongRow() in a filterTimeCode() call so the time lengths are formatted.
+
  var playButtonTemplate = '<a class="album-song-button"><span class="ion-play"></span></a>';
  var pauseButtonTemplate = '<a class="album-song-button"><span class="ion-pause"></span></a>';
  var playerBarPlayButton = '<span class="ion-play"></span>';
@@ -307,4 +328,4 @@ var previousSong = function() {
      setupSeekBars();
      $previousButton.click(previousSong);
      $nextButton.click(nextSong);     
- });
+ };
